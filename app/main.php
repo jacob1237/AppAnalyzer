@@ -127,15 +127,14 @@ class SimilarDetector
                 'urls' => array($items[$i]->getUrl()),
             );
 
-            for ($j = $i + 1; $j < $count; $j++)
+            for ($j = 0; $j < $count; $j++)
             {
-                $title2 = $items[$j]->getTitle();
-
-                if (!self::isSimilar($items[$i], $items[$j])) {
+                if (($i == $j) || !self::isSimilar($items[$i], $items[$j])) {
                     continue;
                 }
 
                 $items[$j]->sorted = true;
+                $title2 = $items[$j]->getTitle();
 
                 $result[$title1]['commonTitle'] = longest_common_substring($title1, $title2);
                 $result[$title1]['urls'][] = $items[$j]->getUrl();
