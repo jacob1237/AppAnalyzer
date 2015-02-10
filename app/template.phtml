@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>AppAnalyzer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <link href="../public/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../public/css/style.css" rel="stylesheet">
+
+  <!-- Fav and touch icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../public/img/apple-touch-icon-144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../public/img/apple-touch-icon-114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../public/img/apple-touch-icon-72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="../public/img/apple-touch-icon-57-precomposed.png">
+  <link rel="shortcut icon" href="../public/img/favicon.png">
+</head>
+
+<body>
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-2 column">
+		</div>
+		<div class="col-md-8 column">
+            <?php if (!empty($groups)): ?>
+                <?php if (!empty($errors)): ?>
+                    <div class="alert alert-warning" role="alert">
+                        <h4>Success with some errors</h4>
+                        <?php foreach ($errors as $error): ?>
+                            <p><b><?= $error['message'] ?>:</b>&nbsp;<?= $error['url'] ?></p>
+                        <?php endforeach ?>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-success" role="alert">
+                        <h4>Success</h4>
+                        <p>Found some groups!</p>
+                    </div>
+                <?php endif ?>
+            <?php endif ?>
+
+			<h2>Greetings!</h2>
+            <p>
+                This is a similar applications analyzer.<br/>
+                Just put your URLs list in the area below and click "Submit".
+            </p>
+
+			<form role="form" method="post">
+				<div class="form-group">
+                    <textarea name="list" class="form-control" rows="20" id="comment"></textarea>
+				</div>
+                <input type="submit" class="btn btn-primary" name="submit" value="Submit">
+			</form>
+
+            <?php foreach ($groups as $group => $data): ?>
+                <h2><?= $data['commonTitle'] ?></h2>
+                <p>
+                    <?php foreach ($data['urls'] as $url): ?>
+                        <a href="<?= $url ?>" target="_blank"><?= $url ?></a><br/>
+                    <?php endforeach ?>
+                </p>
+            <?php endforeach ?>
+
+		</div>
+		<div class="col-md-2 column">
+		</div>
+	</div>
+</div>
+</body>
+</html>
