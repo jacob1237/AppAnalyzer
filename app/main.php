@@ -5,7 +5,7 @@ use API\Application;
 require APPLICATION_ROOT . '/library/strutils.php';
 
 
-class Sorter
+class SimilarDetector
 {
     /**
      * Minimal similarity constants
@@ -54,15 +54,46 @@ class Sorter
                 continue;
             }
 
-            $result[$app->getSource()][] = array(
-                'url' => $url,
-                'title' => $app->getTitle(),
-                'developer' => $app->getDeveloper(),
-                'description' => $app->getDescription(),
-            );
+            $result[] = $app;
         }
 
         return $result;
+    }
+
+    /**
+     * Check applications similarity
+     *
+     * @param $app1 Application\ApplicationInterface
+     * @param $app2 Application\ApplicationInterface
+     */
+    protected static function isSimilar($app1, $app2)
+    {
+        similar_text(
+            strtolower($app1->getDescription()),
+            strtolower($app2->getDescription()),
+            $desc
+        );
+
+        similar_text(
+            strtolower($app1->getTitle()),
+            strtolower($app2->getTitle()),
+            $title
+        );
+
+        similar_text(
+            strtolower($app1->getDeveloper()),
+            strtolower($app2->getDeveloper()),
+            $developer
+        );
+
+        if ($desc < self::MIN_DESC_SIMILARITY)
+        {
+            if (($title < self::MIN_TITLE_SIMILARITY) && ($developer < self::MIN_DEV_SIMILARITY)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -77,55 +108,37 @@ class Sorter
         // Clear previous errors list
         self::cleanErrors();
 
+        $items = self::getAppsData($list);
+        $count = count($items);
+
         $result = array();
 
-        // Retrieve and store applications data
-        $storesItems = self::getAppsData($list);
-
-        $index = 0;
-        $stores = array_keys($storesItems);
-        foreach ($stores as $store)
+        for ($i = 0; $i < $count; $i++)
         {
-            $index++;
+            if (!empty($items[$i]->sorted)) {
+                continue;
+            }
 
-            foreach ($storesItems[$store] as &$item)
+            $title1 = $items[$i]->getTitle();
+
+            // Create new URL group (by application name)
+            $result[$title1] = array(
+                'commonTitle' => $title1,
+                'urls' => array($items[$i]->getUrl()),
+            );
+
+            for ($j = $i + 1; $j < $count; $j++)
             {
-                // Skip items which are already sorted to some group
-                if (!empty($item['sorted'])) {
+                $title2 = $items[$j]->getTitle();
+
+                if (!self::isSimilar($items[$i], $items[$j])) {
                     continue;
                 }
 
-                // Create new URL group (by application name)
-                $result[$item['title']] = array(
-                    'commonTitle' => $item['title'],
-                    'urls' => array($item['url']),
-                );
+                $items[$j]->sorted = true;
 
-                // Get neighbour stores from the right
-                $neighbours = array_slice($stores, $index, count($stores) - $index);
-                foreach ($neighbours as $nextStore)
-                {
-                    foreach ($storesItems[$nextStore] as &$nextItem)
-                    {
-                        similar_text(strtolower($item['description']), strtolower($nextItem['description']), $descSimilarity);
-                        similar_text(strtolower($item['title']), strtolower($nextItem['title']), $titleSimilarity);
-                        similar_text(strtolower($item['developer']), strtolower($nextItem['developer']), $devSimilarity);
-
-                        if ($descSimilarity < self::MIN_DESC_SIMILARITY)
-                        {
-                            if (($titleSimilarity < self::MIN_TITLE_SIMILARITY) &&
-                                ($devSimilarity < self::MIN_DEV_SIMILARITY))
-                            {
-                                continue;
-                            }
-                        }
-
-                        $nextItem['sorted'] = true;
-
-                        $result[$item['title']]['commonTitle'] = longest_common_substring($item['title'], $nextItem['title']);
-                        $result[$item['title']]['urls'][] = $nextItem['url'];
-                    }
-                }
+                $result[$title1]['commonTitle'] = longest_common_substring($title1, $title2);
+                $result[$title1]['urls'][] = $items[$j]->getUrl();
             }
         }
 

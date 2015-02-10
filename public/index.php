@@ -12,8 +12,8 @@ if (!empty($_POST['submit']) && !empty($_POST['list']))
 {
     $list = array_unique(explode("\r\n", trim($_POST['list'])));
 
-    $groups = Sorter::groupApps($list);
-    $errors = Sorter::getLastErrors();
+    $groups = SimilarDetector::groupApps($list);
+    $errors = SimilarDetector::getLastErrors();
 }
 
 // Show HTML page

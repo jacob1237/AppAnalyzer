@@ -11,4 +11,5 @@ interface ApplicationInterface
     public function getDescription();
     public function getDeveloper();
     public function getSource();
+    public function getUrl();
 }

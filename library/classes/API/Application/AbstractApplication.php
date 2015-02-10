@@ -11,6 +11,11 @@ abstract class AbstractApplication implements ApplicationInterface
     protected $client;
 
     /**
+     * @var string Initial application URL
+     */
+    protected $url;
+
+    /**
      * @var string Application title
      */
     protected $title;
@@ -32,6 +37,7 @@ abstract class AbstractApplication implements ApplicationInterface
 
     public function __construct($url, $client)
     {
+        $this->url = $url;
         $this->client = $client;
 
         $response = $this->client->get($url);
@@ -56,6 +62,11 @@ abstract class AbstractApplication implements ApplicationInterface
     public function getSource()
     {
         return $this->source;
+    }
+
+    public function getUrl()
+    {
+        return $this->url;
     }
 
     abstract protected function parse($html);
