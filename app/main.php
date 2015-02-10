@@ -7,7 +7,12 @@ require APPLICATION_ROOT . '/library/strutils.php';
 
 class Sorter
 {
-    const MINIMUM_SIMILARITY = 40;
+    /**
+     * Minimal similarity constants
+     */
+    const MIN_DESC_SIMILARITY = 40;
+    const MIN_TITLE_SIMILARITY = 95;
+    const MIN_DEV_SIMILARITY = 95;
 
     protected static $errors = array();
 
@@ -102,19 +107,23 @@ class Sorter
                 {
                     foreach ($storesItems[$nextStore] as &$nextItem)
                     {
-                        similar_text($item['description'], $nextItem['description'], $similarity);
+                        similar_text(strtolower($item['description']), strtolower($nextItem['description']), $descSimilarity);
+                        similar_text(strtolower($item['title']), strtolower($nextItem['title']), $titleSimilarity);
+                        similar_text(strtolower($item['developer']), strtolower($nextItem['developer']), $devSimilarity);
 
-                        $title = longest_common_substring($item['title'], $nextItem['title']);
-                        $developer = longest_common_substring($item['developer'], $nextItem['developer']);
-
-                        // If apps are similar, add second app URL into a group
-                        if (($similarity > self::MINIMUM_SIMILARITY) && (!empty($title)) && (!empty($developer)))
+                        if ($descSimilarity < self::MIN_DESC_SIMILARITY)
                         {
-                            $nextItem['sorted'] = true;
-
-                            $result[$item['title']]['commonTitle'] = $title;
-                            $result[$item['title']]['urls'][] = $nextItem['url'];
+                            if (($titleSimilarity < self::MIN_TITLE_SIMILARITY) &&
+                                ($devSimilarity < self::MIN_DEV_SIMILARITY))
+                            {
+                                continue;
+                            }
                         }
+
+                        $nextItem['sorted'] = true;
+
+                        $result[$item['title']]['commonTitle'] = longest_common_substring($item['title'], $nextItem['title']);
+                        $result[$item['title']]['urls'][] = $nextItem['url'];
                     }
                 }
             }

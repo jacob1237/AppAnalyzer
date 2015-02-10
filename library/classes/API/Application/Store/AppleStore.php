@@ -21,7 +21,7 @@ class AppleStore extends AbstractApplication implements ApplicationInterface
      * URL validation and transform
      * Used for URL modifying to get only english application pages
      *
-     * @param $url URL
+     * @param $url string URL
      * @return string Modified URL
      * @throws \Exception
      */
@@ -72,7 +72,7 @@ class AppleStore extends AbstractApplication implements ApplicationInterface
         }
 
         $this->title = $title->item(0)->textContent;
-        $this->developer = $developer->item(0)->textContent;
+        $this->developer = ltrim($developer->item(0)->textContent, 'By ');
         $this->description = $description->item(0)->textContent;
         $this->source = 'apple';
     }
