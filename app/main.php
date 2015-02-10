@@ -7,6 +7,8 @@ require APPLICATION_ROOT . '/library/strutils.php';
 
 class Sorter
 {
+    const MINIMUM_SIMILARITY = 40;
+
     protected static $errors = array();
 
     /**
@@ -106,7 +108,7 @@ class Sorter
                         $developer = longest_common_substring($item['developer'], $nextItem['developer']);
 
                         // If apps are similar, add second app URL into a group
-                        if (($similarity > 50) && (!empty($title)) && (!empty($developer)))
+                        if (($similarity > self::MINIMUM_SIMILARITY) && (!empty($title)) && (!empty($developer)))
                         {
                             $nextItem['sorted'] = true;
 
