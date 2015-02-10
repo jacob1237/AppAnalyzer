@@ -24,6 +24,14 @@
 		<div class="col-md-2 column">
 		</div>
 		<div class="col-md-8 column">
+            <?php if (empty($groups) && !empty($errors)): ?>
+                <div class="alert alert-danger" role="alert">
+                    <h4>Error</h4>
+                        <?php foreach ($errors as $error): ?>
+                            <p><b><?= $error['message'] ?>:</b>&nbsp;<?= $error['url'] ?></p>
+                        <?php endforeach ?>
+                 </div>
+            <?php endif ?>
             <?php if (!empty($groups)): ?>
                 <?php if (!empty($errors)): ?>
                     <div class="alert alert-warning" role="alert">
